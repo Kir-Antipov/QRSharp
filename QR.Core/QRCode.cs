@@ -337,7 +337,7 @@ namespace QR.Core
             if (selectedMask is null)
             {
                 int minPenalty = int.MaxValue;
-                for (Mask i = Mask.MinValue; i <= Mask.MaxValue; ++i)
+                for (Mask i = Mask.MinValue; ; ++i)
                 {
                     DrawMask(i);
                     DrawFormatBits(i);
