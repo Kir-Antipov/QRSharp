@@ -133,25 +133,21 @@ namespace QR.Core
                     Computer = (Func<int, int>)ComputeAlphaNumericBitLength,
                     Creator = (Func<string, QRSegment>)CreateAlphaNumericSegment,
                     BitLength = ComputeAlphaNumericBitLength(match.Length),
-                    Type = 1 });
+                    Type = 1
+                });
 
             var suitable = numerics.Concat(alphaNumerics)
                 .Where(x => Encoding.UTF8.GetByteCount(chars, x.Match.Index, x.Match.Length) * 8 > x.BitLength)
                 .OrderBy(x => x.Match.Index)
                 .ThenBy(x => x.Type)
                 .GetEnumerator();
-            suitable.MoveNext();
 
-            for (int i = 0; i < text.Length; suitable.MoveNext())
+            bool moving = suitable.MoveNext();
+            for (int i = 0; i < text.Length; moving = suitable.MoveNext())
             {
-                var current = suitable.Current;
-                if (current == null)
+                if (moving)
                 {
-                    yield return CreateByteSegment(Encoding.UTF8.GetBytes(chars, i, text.Length - i));
-                    i = text.Length;
-                }
-                else
-                {
+                    var current = suitable.Current;
                     if (i <= current.Match.Index)
                     {
                         if (i < current.Match.Index)
@@ -168,6 +164,11 @@ namespace QR.Core
                             i = current.Match.Index + current.Match.Length;
                         }
                     }
+                }
+                else
+                {
+                    yield return CreateByteSegment(Encoding.UTF8.GetBytes(chars, i, text.Length - i));
+                    i = text.Length;
                 }
             }
         }
